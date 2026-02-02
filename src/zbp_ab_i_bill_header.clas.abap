@@ -1,0 +1,5 @@
+CLASS zbp_ab_i_bill_header DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zab_i_bill_header.
+ENDCLASS.
+
+CLASS zbp_ab_i_bill_header IMPLEMENTATION.
+ENDCLASS.

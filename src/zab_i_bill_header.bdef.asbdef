@@ -1,0 +1,39 @@
+managed implementation in class zbp_ab_i_bill_header unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZAB_I_Bill_Header alias BillHeader
+persistent table zab_bill_header
+draft table zab_d_bill_head
+lock master
+total etag LastChangedAt
+authorization master ( instance )
+etag master Lastchangedat
+{
+  create ( authorization : global );
+  update;
+  delete;
+  field ( readonly:update, mandatory : create ) BillId;
+
+  draft determine action Prepare;
+  draft action Edit;
+  draft action Resume;
+  draft action Activate optimized;
+  draft action Discard;
+
+  mapping for zab_bill_header
+    {
+      BillId     = bill_id;
+      BillType   = bill_type;
+      BillDate   = bill_date;
+      CustomerId = customer_id;
+      NetAmount  = net_amount;
+      Currency   = currency;
+      SalesOrg   = sales_org;
+      CreatedBy = createdby;
+      CreateDat = createdat;
+      LastChangedBy = lastchangedby;
+      LastChangeDat = lastchangedat;
+      LocalLastChangeDat = locallastchangedat;
+    }
+}

@@ -1,0 +1,49 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: {
+    typeName: 'Billing Document',
+    typeNamePlural: 'Billing Documents',
+    title: { value: 'BillID' },
+    description: { value: 'BillId' }
+    }
+annotate entity ZAB_C_BillHeader with
+{
+  @UI.facet: [ {
+    id:              'BillingDocHead',
+    purpose:         #STANDARD,
+    type:            #IDENTIFICATION_REFERENCE,
+    label:           'Billing Doc. Header Details',
+    position:        10 } ]
+  @EndUserText.label: 'Billing Document'
+  @UI: {  lineItem:       [ { position: 10 } ],
+          identification: [ { position: 10 } ],
+          selectionField: [ { position: 10 } ] }
+  BillId;
+  @EndUserText.label: 'Billing Document Type'
+  @UI: {  lineItem:       [ { position: 20 } ],
+       identification: [ { position: 20 } ],
+       selectionField: [ { position: 20 } ] }
+  BillType;
+  @EndUserText.label: 'Billing Date'
+  @UI: {  lineItem:       [ { position: 30 } ] ,
+        identification: [ { position: 30 } ]}
+  BillDate;
+  @EndUserText.label: 'Customer'
+  @UI: {  lineItem:       [ { position: 40 } ] ,
+        identification: [ { position: 40 } ],
+        selectionField: [{ position: 40 }]}
+  @Search.defaultSearchElement: true
+  @Search.fuzzinessThreshold: 0.7
+  CustomerId;
+  @EndUserText.label: 'Net Amount'
+  @UI: {  lineItem:       [ { position: 50 } ] ,
+        identification: [ { position: 50 } ]}
+  NetAmount;
+  @EndUserText.label: 'Currency'
+  @UI: {  lineItem:       [ { position: 60 } ] ,
+        identification: [ { position: 60 } ]}
+  Currency;
+  @EndUserText.label: 'Sales Organization'
+  @UI: {  lineItem:       [ { position: 70 } ] ,
+        identification: [ { position: 70 } ]}
+  SalesOrg;
+}
