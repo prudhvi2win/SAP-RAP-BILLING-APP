@@ -1,4 +1,5 @@
 @EndUserText.label: 'SERVICE DEFINITION FOR BILL DOC HEADER'
 define service ZAB_UI_BillHeader {
   expose ZAB_C_BillHeader as BillingHeader;
+  expose ZAB_C_BILL_ITEM  as BillingDocumentItem;
 }

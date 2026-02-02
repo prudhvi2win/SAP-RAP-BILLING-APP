@@ -18,5 +18,7 @@ define root view entity ZAB_C_BillHeader
       Createdat,
       Lastchangedby,
       Lastchangedat,
-      Locallastchangedat
+      Locallastchangedat,
+      
+      _item: redirected to composition child ZAB_C_BILL_ITEM
 }

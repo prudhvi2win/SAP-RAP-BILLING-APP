@@ -6,7 +6,9 @@
 "ZAB_BILL_HEADER"
 ],
 "ASSOCIATED":
-[],
+[
+"ZAB_I_BILL_ITEM"
+],
 "BASE":
 [],
 "ANNO_REF":

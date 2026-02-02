@@ -1,10 +1,15 @@
 @Metadata.layer: #CORE
-@UI.headerInfo: {
-    typeName: 'Billing Document',
-    typeNamePlural: 'Billing Documents',
-    title: { value: 'BillID' },
-    description: { value: 'BillId' }
+@UI: {
+  headerInfo: {
+    typeName:        'Billing Document Header',
+    typeNamePlural:  'Billing Documents',
+    title: {
+      type:  #STANDARD,
+      label: 'Billing Document',
+      value: 'BillId'
     }
+  }
+}
 annotate entity ZAB_C_BillHeader with
 {
   @UI.facet: [ {
@@ -12,7 +17,15 @@ annotate entity ZAB_C_BillHeader with
     purpose:         #STANDARD,
     type:            #IDENTIFICATION_REFERENCE,
     label:           'Billing Doc. Header Details',
-    position:        10 } ]
+    position:        10 },
+    {
+      id:            'BillingDocItem',
+      purpose:       #STANDARD,
+      type:          #LINEITEM_REFERENCE,
+      label:         'Items',
+      position:      20,
+      targetElement: '_item'
+    } ]
   @EndUserText.label: 'Billing Document'
   @UI: {  lineItem:       [ { position: 10 } ],
           identification: [ { position: 10 } ],

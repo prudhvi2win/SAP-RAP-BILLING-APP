@@ -3,7 +3,7 @@
 @Metadata.ignorePropagatedAnnotations: true
 define root view entity ZAB_I_Bill_Header
   as select from zab_bill_header
-  //composition of target_data_source_name as _association_name
+  composition[0..*] of zab_i_bill_item as _item
 {
   key bill_id            as BillId,
       bill_type          as BillType,
@@ -22,6 +22,7 @@ define root view entity ZAB_I_Bill_Header
       @Semantics.systemDateTime.lastChangedAt: true
       lastchangedat      as Lastchangedat,
       @Semantics.systemDateTime.localInstanceLastChangedAt: true
-      locallastchangedat as Locallastchangedat
+      locallastchangedat as Locallastchangedat,
       //_association_name // Make association public
+      _item
 }
