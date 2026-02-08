@@ -9,14 +9,29 @@ lock master
 total etag LastChangedAt
 authorization master ( instance, global )
 etag master Lastchangedat
+early numbering
 {
   create ( authorization : global );
   update;
   delete;
-  field ( readonly:update, mandatory : create ) BillId;
+
+//  field ( readonly, numbering : managed ) BillId; type should be sysuuid_x16
+
+  field ( readonly ) BillId;
+
+//  determination setBillId on save { create; }
+
   association _item { create; with draft; }
 
-  draft determine action Prepare;
+  // Validation definition
+  validation validateAmount on save { create; update; }
+
+  draft determine action Prepare
+  {
+    validation validateAmount;
+  }
+
+  //draft determine action Prepare;
   draft action Edit;
   draft action Resume;
   draft action Activate optimized;
@@ -24,48 +39,49 @@ etag master Lastchangedat
 
   mapping for zab_bill_header
     {
-      BillId     = bill_id;
-      BillType   = bill_type;
-      BillDate   = bill_date;
-      CustomerId = customer_id;
-      NetAmount  = net_amount;
-      Currency   = currency;
-      SalesOrg   = sales_org;
-      CreatedBy = createdby;
-      CreateDat = createdat;
-      LastChangedBy = lastchangedby;
-      LastChangeDat = lastchangedat;
+      BillId             = bill_id;
+      BillType           = bill_type;
+      BillDate           = bill_date;
+      CustomerId         = customer_id;
+      NetAmount          = net_amount;
+      Currency           = currency;
+      SalesOrg           = sales_org;
+      CreatedBy          = createdby;
+      CreateDat          = createdat;
+      LastChangedBy      = lastchangedby;
+      LastChangeDat      = lastchangedat;
       LocalLastChangeDat = locallastchangedat;
     }
 }
 
-define behavior for ZAB_I_BILL_ITEM
-persistent table ZAB_bill_item
+define behavior for zab_i_bill_item alias items
+persistent table zab_bill_item
 draft table zab_d_bill_item
 lock dependent by _header
 authorization dependent by _header
+early numbering
 {
   update;
   delete;
 
-  field ( readonly : update, mandatory : create ) BillId, ItemNo;
+  field ( readonly ) BillId, ItemNo;
 
-  association _header{ with draft; }
+  association _header { with draft; }
 
-  mapping for ZAB_bill_item
-  {
-    BillId      = bill_id;
-    ItemNo      = item_no;
-    MaterialId  = material_id;
-    Description = description;
-    Quantity    = quantity;
-    ItemAmount  = item_amount;
-    Currency    = currency;
-    Uom         = uom;
-    CreatedBy = createdby;
-    CreateDat = createdat;
-    LastChangedBy = lastchangedby;
-    LastChangeDat = lastchangedat;
-    LocalLastChangeDat = locallastchangedat;
-  }
+  mapping for zab_bill_item
+    {
+      BillId             = bill_id;
+      ItemNo             = item_no;
+      MaterialId         = material_id;
+      Description        = description;
+      Quantity           = quantity;
+      ItemAmount         = item_amount;
+      Currency           = currency;
+      Uom                = uom;
+      CreatedBy          = createdby;
+      CreateDat          = createdat;
+      LastChangedBy      = lastchangedby;
+      LastChangeDat      = lastchangedat;
+      LocalLastChangeDat = locallastchangedat;
+    }
 }
