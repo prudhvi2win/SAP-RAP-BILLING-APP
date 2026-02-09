@@ -1,3 +1,70 @@
+CLASS lhc_items DEFINITION INHERITING FROM cl_abap_behavior_handler.
+
+  PRIVATE SECTION.
+
+    METHODS calculateNetAmount FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR items~calculateNetAmount.
+
+    METHODS setDefaultCurrency FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR items~setDefaultCurrency.
+
+ENDCLASS.
+
+CLASS lhc_items IMPLEMENTATION.
+
+  METHOD calculateNetAmount.
+    "Read header keys
+    READ ENTITIES OF zab_i_bill_header IN LOCAL MODE
+      ENTITY BillHeader
+      ALL FIELDS
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_header).
+
+    LOOP AT lt_header ASSIGNING FIELD-SYMBOL(<ls_header>).
+
+      "Read all items for this header (draft + active)
+      READ ENTITIES OF zab_i_bill_header IN LOCAL MODE
+        ENTITY BillHeader BY \_Item
+        FIELDS ( ItemAmount )
+        WITH VALUE #( ( %tky = <ls_header>-%tky ) )
+        RESULT DATA(lt_items).
+
+      DATA(lv_total) = CONV zab_bill_header-net_amount( 0 ).
+
+      LOOP AT lt_items ASSIGNING FIELD-SYMBOL(<ls_item>).
+        lv_total += <ls_item>-ItemAmount.
+      ENDLOOP.
+
+      " Update the header buffer with the new total
+      MODIFY ENTITIES OF zab_i_bill_header IN LOCAL MODE
+        ENTITY BillHeader
+        UPDATE FIELDS ( NetAmount )
+        WITH VALUE #( ( %tky = <ls_header>-%tky NetAmount = lv_total ) ).
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD setDefaultCurrency.
+    " 1. Read the items to see if they have currency
+    READ ENTITIES OF ZAB_I_Bill_Header IN LOCAL MODE
+      ENTITY items
+      FIELDS ( Currency ) WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_items).
+
+    DELETE lt_items WHERE Currency IS NOT INITIAL.
+    CHECK lt_items IS NOT INITIAL.
+
+    " 2. Set 'INR' as default for the new items
+    MODIFY ENTITIES OF ZAB_I_Bill_Header IN LOCAL MODE
+      ENTITY items
+      UPDATE FIELDS ( Currency )
+      WITH VALUE #( FOR item IN lt_items (
+                      %tky     = item-%tky
+                      Currency = 'INR' ) ).
+  ENDMETHOD.
+
+
+ENDCLASS.
+
 CLASS lhc_ZAB_I_Bill_Header DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
@@ -9,6 +76,11 @@ CLASS lhc_ZAB_I_Bill_Header DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS validateAmount FOR VALIDATE ON SAVE
       IMPORTING keys FOR BillHeader~validateAmount.
+
+    METHODS setBillDate FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR BillHeader~setBillDate.
+    METHODS setDefaultCurrency FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR BillHeader~setDefaultCurrency.
 
     METHODS earlynumbering_cba_Item FOR NUMBERING
       IMPORTING entities FOR CREATE BillHeader\_Item.
@@ -161,8 +233,50 @@ CLASS lhc_ZAB_I_Bill_Header IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD setBillDate.
+    "Read current data (draft or active)
+    READ ENTITIES OF zab_i_bill_header IN LOCAL MODE
+      ENTITY BillHeader
+      FIELDS ( BillDate )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_bill).
 
+    LOOP AT lt_bill ASSIGNING FIELD-SYMBOL(<ls_bill>).
 
+      "Idempotent logic (VERY IMPORTANT)
+      IF <ls_bill>-BillDate IS INITIAL.
+        <ls_bill>-BillDate = cl_abap_context_info=>get_system_date( ).
+      ENDIF.
+    ENDLOOP.
+
+    "Update derived field
+    MODIFY ENTITIES OF zab_i_bill_header IN LOCAL MODE
+      ENTITY BillHeader
+      UPDATE FIELDS ( BillDate )
+      WITH VALUE #(
+        FOR bill IN lt_bill
+        ( %tky     = bill-%tky
+          BillDate = bill-BillDate
+          Currency = 'INR' )
+      ).
+  ENDMETHOD.
+
+  METHOD setDefaultCurrency.
+    READ ENTITIES OF ZAB_I_Bill_Header IN LOCAL MODE
+      ENTITY BillHeader
+      FIELDS ( Currency ) WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_headers).
+
+    DELETE lt_headers WHERE Currency IS NOT INITIAL.
+    CHECK lt_headers IS NOT INITIAL.
+
+    MODIFY ENTITIES OF ZAB_I_Bill_Header IN LOCAL MODE
+      ENTITY BillHeader
+      UPDATE FIELDS ( Currency )
+      WITH VALUE #( FOR header IN lt_headers (
+                      %tky     = header-%tky
+                      Currency = 'INR' ) ).
+  ENDMETHOD.
 
 
 ENDCLASS.

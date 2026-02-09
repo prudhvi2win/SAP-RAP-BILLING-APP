@@ -15,16 +15,20 @@ early numbering
   update;
   delete;
 
-//  field ( readonly, numbering : managed ) BillId; type should be sysuuid_x16
+  //  field ( readonly, numbering : managed ) BillId; type should be sysuuid_x16
 
   field ( readonly ) BillId;
-
-//  determination setBillId on save { create; }
+  field ( readonly ) NetAmount;
 
   association _item { create; with draft; }
 
+  // Determination(Autofill Logic) to set BillDate
+  determination setBillDate on modify { create; }
+  determination setDefaultCurrency on modify { create; }
+
+
   // Validation definition
-  validation validateAmount on save { create; update; }
+  validation validateAmount on save { field NetAmount, BillDate; create; update; }
 
   draft determine action Prepare
   {
@@ -67,6 +71,9 @@ early numbering
   field ( readonly ) BillId, ItemNo;
 
   association _header { with draft; }
+
+  determination setDefaultCurrency on modify { create; }
+  determination calculateNetAmount on modify { update; field ItemAmount; }
 
   mapping for zab_bill_item
     {
